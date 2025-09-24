@@ -1,295 +1,342 @@
-<!doctype html>
-
+<!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-  <meta name="description" content="Panduan flashing firmware Emensta BlueJammer ke ESP32 via OTG Android — untuk pemula, jelas, ringkas, dan interaktif." />
-  <meta name="github-zip" content="" />
-  <title>Panduan Flashing Emensta BlueJammer (ESP32) — Pemula</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Flashing Emensta BlueJammer - Panduan Android</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
   <style>
-    :root{--bg:#071326;--card:#081421;--accent:#00ffd5;--accent2:#6e6cff;--muted:#9fb3bf;--glass: rgba(255,255,255,0.03);--glass2: rgba(255,255,255,0.02)}
-    *{box-sizing:border-box}
-    html,body{height:100%}
-    body{font-family:Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; margin:0; background:linear-gradient(180deg,var(--bg),#00121a); color:#e6f8f8; -webkit-font-smoothing:antialiased}/* container */
-.wrap{max-width:980px;margin:18px auto;padding:16px}
+    :root {
+      --primary: #0ea5e9;
+      --dark: #0f172a;
+      --light: #f1f5f9;
+      --card: #ffffff;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --shadow: 0 6px 16px rgba(0,0,0,0.08);
+      --transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+    }
 
-/* header */
-header{display:flex;align-items:center;gap:14px}
-.logo{width:66px;height:66px;border-radius:14px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:grid;place-items:center;font-weight:800;color:#00121a;font-size:20px;box-shadow:0 6px 30px rgba(110,108,255,0.12)}
-h1{font-size:20px;margin:0}
-p.lead{margin:6px 0 0;color:var(--muted);font-size:13px}
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+    }
 
-/* card */
-.card{background:linear-gradient(180deg,var(--glass),var(--glass2));border-radius:12px;padding:16px;margin-top:14px;box-shadow:0 10px 30px rgba(2,6,23,0.6);backdrop-filter: blur(6px)}
+    body {
+      background: linear-gradient(135deg, #e0f7fa, #bbdefb);
+      color: var(--dark);
+      line-height: 1.6;
+      padding: 16px;
+      overflow-x: hidden;
+    }
 
-/* layout grid */
-.grid{display:grid;grid-template-columns:1fr 340px;gap:14px}
-@media (max-width:920px){.grid{grid-template-columns:1fr}}
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+    }
 
-ul.materials{padding-left:18px;color:var(--muted)}
-ul.materials li{margin:8px 0}
+    header {
+      text-align: center;
+      margin-bottom: 24px;
+      position: relative;
+    }
 
-ol.steps{padding-left:18px;color:#e6fffb}
-ol.steps li{margin:12px 0;line-height:1.45}
+    h1 {
+      font-size: 1.8rem;
+      font-weight: 800;
+      background: linear-gradient(90deg, var(--primary), #3b82f6);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      margin: 16px 0;
+    }
 
-pre{background:rgba(2,8,14,0.6);padding:12px;border-radius:10px;overflow:auto;font-size:13px;color:#bff8ee}
+    .subtitle {
+      font-size: 1rem;
+      color: #475569;
+    }
 
-table{width:100%;border-collapse:collapse;margin-top:10px}
-th,td{padding:10px;border-bottom:1px dashed rgba(255,255,255,0.04);text-align:left;font-size:14px}
-th{color:var(--muted);font-size:13px}
+    .card {
+      background: var(--card);
+      border-radius: 20px;
+      padding: 22px;
+      margin-bottom: 20px;
+      box-shadow: var(--shadow);
+      position: relative;
+      overflow: hidden;
+      transform: translateY(20px);
+      opacity: 0;
+      animation: fadeInUp 0.6s var(--delay) forwards;
+    }
 
-/* buttons */
-.btn{display:inline-flex;gap:8px;align-items:center;padding:10px 12px;border-radius:12px;background:linear-gradient(90deg,var(--accent),var(--accent2));color:#00121a;text-decoration:none;font-weight:700;cursor:pointer;border:0;box-shadow:0 8px 24px rgba(110,108,255,0.08)}
-.btn.secondary{background:transparent;color:var(--muted);border:1px solid rgba(255,255,255,0.04)}
+    @keyframes fadeInUp {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
 
-/* futuristic icons */
-.icon{width:18px;height:18px;display:inline-block;vertical-align:middle}
+    .card:nth-child(1) { --delay: 0.1s; }
+    .card:nth-child(2) { --delay: 0.2s; }
+    .card:nth-child(3) { --delay: 0.3s; }
+    .card:nth-child(4) { --delay: 0.4s; }
+    .card:nth-child(5) { --delay: 0.5s; }
 
-/* animations */
-.glow{box-shadow:0 6px 18px rgba(0,255,213,0.08);transition:transform .18s ease,box-shadow .18s}
-.glow:hover{transform:translateY(-4px);box-shadow:0 18px 40px rgba(110,108,255,0.14)}
+    h2 {
+      font-size: 1.4rem;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--primary);
+    }
 
-.badge{display:inline-block;padding:6px 8px;border-radius:999px;background:linear-gradient(90deg,#00ffd5,#6e6cff);color:#00121a;font-weight:700}
+    h2 i {
+      font-size: 1.3rem;
+    }
 
-/* watermark */
-.watermark{position:fixed;right:12px;bottom:12px;opacity:0.06;font-weight:900;font-size:22px;pointer-events:none}
+    ul, ol {
+      padding-left: 20px;
+      margin: 12px 0;
+    }
 
-/* responsive small tweaks */
-input[type=text]{width:100%;padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:inherit}
+    li {
+      margin-bottom: 10px;
+      font-size: 0.95rem;
+    }
 
-.muted{color:var(--muted);font-size:13px}
+    .highlight {
+      background: #dbeafe;
+      padding: 2px 6px;
+      border-radius: 6px;
+      font-family: monospace;
+      font-weight: 600;
+      color: #1e40af;
+    }
 
-/* improved wiring layout */
-.wiring{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-@media (max-width:720px){.wiring{grid-template-columns:1fr}}
-.wire-card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:12px;border-radius:10px}
+    .note, .tip {
+      padding: 14px;
+      border-radius: 14px;
+      margin: 16px 0;
+      font-size: 0.95rem;
+    }
 
-/* small helpers */
-.ok{color:#032023;background:#bff0e8;padding:6px 8px;border-radius:8px;font-weight:700}
-.warn{color:#3a2000;background:#ffdca8;padding:6px 8px;border-radius:8px;font-weight:700}
+    .note {
+      background: #fffbeb;
+      border-left: 4px solid var(--warning);
+    }
 
-/* subtle neon underline */
-.neon{position:relative}
-.neon::after{content:'';position:absolute;left:0;right:0;height:3px;border-radius:4px;background:linear-gradient(90deg, rgba(0,255,213,0.16), rgba(110,108,255,0.14));bottom:-8px}
+    .tip {
+      background: #ecfdf5;
+      border-left: 4px solid var(--success);
+    }
 
+    .download-btn {
+      display: block;
+      width: 100%;
+      background: linear-gradient(90deg, var(--primary), #0284c7);
+      color: white;
+      padding: 16px;
+      border: none;
+      border-radius: 16px;
+      font-size: 1.1rem;
+      font-weight: bold;
+      text-align: center;
+      text-decoration: none;
+      margin: 20px auto;
+      box-shadow: var(--shadow);
+      transition: var(--transition);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .download-btn:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 20px rgba(14, 165, 233, 0.4);
+    }
+
+    .download-btn i {
+      margin-right: 8px;
+    }
+
+    .wiring-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0;
+      font-size: 0.9rem;
+    }
+
+    .wiring-table th {
+      background: #dbeafe;
+      padding: 10px;
+      text-align: left;
+      color: #1e40af;
+    }
+
+    .wiring-table td {
+      padding: 10px;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    .wiring-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 16px 0 10px;
+      font-weight: bold;
+      color: #1e3a8a;
+    }
+
+    footer {
+      text-align: center;
+      margin-top: 30px;
+      padding: 16px;
+      color: #64748b;
+      font-size: 0.85rem;
+      position: relative;
+    }
+
+    .watermark {
+      position: fixed;
+      bottom: 10px;
+      right: 10px;
+      font-size: 0.75rem;
+      color: rgba(15, 23, 42, 0.25);
+      z-index: 100;
+      pointer-events: none;
+    }
+
+    @media (max-width: 480px) {
+      h1 { font-size: 1.6rem; }
+      .card { padding: 18px; }
+      .download-btn { padding: 14px; font-size: 1rem; }
+    }
   </style>
 </head>
 <body>
-  <div class="wrap">
+  <div class="watermark">by aptech/aryaputra</div>
+  <div class="container">
     <header>
-      <div class="logo">AP</div>
-      <div>
-        <h1>Panduan Flashing Emensta BlueJammer (ESP32)</h1>
-        <p class="lead">Versi: Android-friendly — tampilan optimal untuk layar HP. Watermark: by aptech/aryaputra</p>
-      </div>
-    </header><div class="grid">
-  <main>
-    <section class="card neon">
-      <h2>1. Bahan yang diperlukan <span class="badge">Android 9+</span></h2>
-      <ul class="materials">
-        <li><strong>ESP32 WROOM devkit (V1–V4)</strong> — jangan pakai ESP32-C3/S3/non-devkit.</li>
-        <li><strong>Kabel OTG data</strong> (microUSB/USB-C yang benar-benar support data).</li>
-        <li><strong>2× nRF24L01</strong> (module 2.4GHz, sertakan kapasitor 10µF dekat VCC/GND tiap modul).</li>
-        <li><strong>Li-Ion 3.7V 1000mAh</strong>, modul charger TP4056, JST connector, dan mini slide switch.</li>
-        <li><strong>Optional:</strong> OLED I2C 0.96" (cek firmware harus mendukung OLED).</li>
-      </ul>
-    </section>
+      <h1><i class="fas fa-microchip"></i> Flashing Emensta BlueJammer</h1>
+      <p class="subtitle">Panduan khusus Android • Tanpa PC • OTG Support</p>
+    </header>
 
-    <section class="card">
-      <h2>2. Ringkasan cepat</h2>
-      <ol class="steps">
-        <li>Install app flasher Android (XAPK atau Play Store).</li>
-        <li>Masukkan file di urutan: <code>main.bin (0x10000)</code> → <code>bootloader (0x1000)</code> → <code>partition (0x8000)</code>.</li>
-        <li>Hubungkan via OTG, lalu <strong>Flash</strong>.</li>
-        <li>Jika sukses, cek Serial Monitor &amp; OLED.</li>
-      </ol>
-    </section>
-
-    <section class="card">
-      <h2>3. File di ZIP &amp; fungsi partition</h2>
-      <pre>// File yang tersedia di ZIP
-
-emensta_official_jammer_esp32.bin bootloader_kusus.bin partition_extra.bin </pre> <p><strong>Apa itu partition_extra.bin?</strong> Partition table mengatur bagaimana flash dibagi: ukuran partisi untuk firmware, filesystem (spiffs/fat), NVS, OTA, dsb. Jika partition table tidak cocok, board bisa gagal booting atau data tidak tersimpan. Gunakan <code>partition_extra.bin</code> yang sudah disesuaikan untuk devkit WROOM (tested).</p> </section>
-
-<section class="card">
-      <h2>4. Cara atur file di aplikasi flasher (Android)</h2>
-      <pre>Slot 1: emensta_official_jammer_esp32.bin  — offset 0x10000
-
-Slot 2: bootloader_kusus.bin                  — offset 0x1000 Slot 3: partition_extra.bin                   — offset 0x8000 Centang: Auto bootloader (jika tersedia) </pre> <p class="muted">Perhatikan urutan & offset. Salah offset = gagal booting.</p> </section>
-
-<section class="card">
-      <h2>5. Langkah flashing &amp; pengecekan</h2>
-      <ol class="steps">
-        <li>Hubungkan HP &amp; ESP32 via OTG (pastikan HP deteksi device, beri permission bila muncul).</li>
-        <li>Tekan <em>Flash</em> dan tunggu progres selesai (jangan cabut kabel).</li>
-        <li>Buka Serial Monitor untuk melihat pesan boot. Jika muncul teks boot, firmware berjalan.</li>
-        <li>Jika OLED tidak menyala namun serial boot muncul => wiring OLED salah.</li>
-      </ol>
-    </section>
-
-    <section class="card">
-      <h2>6. Troubleshooting singkat</h2>
-      <ul class="materials">
-        <li><strong>Flashing error:</strong> Ganti kabel OTG, cek permissions, coba opsi baud lebih rendah.</li>
-        <li><strong>Device tidak boot:</strong> Cek offset &amp; partition table.</li>
-        <li><strong>NRF24 problem:</strong> Pastikan kapasitor 10µF di VCC-GND tiap module &amp; jalur 3.3V stabil.</li>
-        <li><strong>OLED mati:</strong> Periksa SDA/SCL (lihat tabel wiring di bawah).</li>
-      </ul>
-    </section>
-
-    <section class="card">
-      <h2>7. Pin wiring lengkap (update HSPI / VSPI / OLED / Battery)</h2>
-      <div class="wiring">
-        <div class="wire-card">
-          <h3>HSPI — 1st nRF24L01</h3>
-          <table>
-            <tr><th>nRF24L01 Pin</th><th>ESP32 (HSPI)</th><th>Catatan</th></tr>
-            <tr><td>VCC</td><td>3.3V</td><td>(+) kapasitor 10µF dekat VCC</td></tr>
-            <tr><td>GND</td><td>GND</td><td>(-) kapasitor</td></tr>
-            <tr><td>CE</td><td>GPIO16</td><td></td></tr>
-            <tr><td>CSN</td><td>GPIO15</td><td></td></tr>
-            <tr><td>SCK</td><td>GPIO14</td><td></td></tr>
-            <tr><td>MOSI</td><td>GPIO13</td><td></td></tr>
-            <tr><td>MISO</td><td>GPIO12</td><td></td></tr>
-            <tr><td>IRQ</td><td>-</td><td>Jika diperlukan, hubungkan sesuai firmware</td></tr>
-          </table>
-        </div>
-
-        <div class="wire-card">
-          <h3>VSPI — 2nd nRF24L01</h3>
-          <table>
-            <tr><th>nRF24L01 Pin</th><th>ESP32 (VSPI)</th><th>Catatan</th></tr>
-            <tr><td>VCC</td><td>3.3V</td><td>(+) kapasitor 10µF dekat VCC</td></tr>
-            <tr><td>GND</td><td>GND</td><td>(-) kapasitor</td></tr>
-            <tr><td>CE</td><td>GPIO22</td><td></td></tr>
-            <tr><td>CSN</td><td>GPIO21</td><td></td></tr>
-            <tr><td>SCK</td><td>GPIO18</td><td></td></tr>
-            <tr><td>MOSI</td><td>GPIO23</td><td></td></tr>
-            <tr><td>MISO</td><td>GPIO19</td><td></td></tr>
-            <tr><td>IRQ</td><td>-</td><td>Jika diperlukan, hubungkan sesuai firmware</td></tr>
-          </table>
-        </div>
-
-        <div class="wire-card">
-          <h3>Status LED</h3>
-          <table>
-            <tr><th>Komponen</th><th>ESP32</th><th>Catatan</th></tr>
-            <tr><td>3mm Status LED (blue)</td><td>GPIO27 (+ via resistor 4.7k)</td><td>GND ke (-) LED</td></tr>
-            <tr><td>Resistor</td><td>4.7k Ohm</td><td>Pasang di jalur (+) LED</td></tr>
-          </table>
-        </div>
-
-        <div class="wire-card">
-          <h3>OLED Display I2C (0.96")</h3>
-          <table>
-            <tr><th>OLED</th><th>ESP32</th><th>Catatan</th></tr>
-            <tr><td>GND</td><td>GND</td><td></td></tr>
-            <tr><td>VCC</td><td>3.3V</td><td>Jangan pakai 5V</td></tr>
-            <tr><td>SCL</td><td>GPIO5</td><td>Pastikan alamat I2C cocok</td></tr>
-            <tr><td>SDA</td><td>GPIO4</td><td>Beberapa OLED modul varian berbeda — cek label</td></tr>
-          </table>
-        </div>
-
-        <div class="wire-card">
-          <h3>Battery &amp; Charger (modifikasi tambahan)</h3>
-          <table>
-            <tr><th>Komponen</th><th>Hubungan</th><th>Catatan</th></tr>
-            <tr><td>3.7V Li-Ion</td><td>JST-PH2 connector</td><td>Bat + / Bat -</td></tr>
-            <tr><td>TP4056</td><td>OUT+ → Switch → ESP32 VIN (jika menggunakan VIN)</td><td>Pastikan polaritas benar</td></tr>
-            <tr><td>Mini Slide Switch</td><td>Taruh di jalur positif baterai</td><td>Untuk memutus daya tanpa mencabut baterai</td></tr>
-          </table>
-        </div>
-
-      </div>
-    </section>
-
-  </main>
-
-  <aside>
-    <div class="card" style="margin-bottom:12px;">
-      <div style="display:flex;justify-content:space-between;align-items:center;gap:12px">
-        <div>
-          <strong>Download ZIP file (GitHub)</strong>
-          <small class="hint muted">Masukkan URL ZIP GitHub (contoh repo) — tombol akan langsung membuka link jika valid.</small>
-        </div>
-      </div>
-
-      <div style="margin-top:10px;display:flex;gap:8px">
-        <button id="btnDownload" class="btn glow">⬇️ <span style="margin-left:6px">Download ZIP</span></button>
-        <button id="btnCopyCmd" class="btn secondary">📋 Copy Flash Command</button>
-      </div>
-
-      <div style="margin-top:10px">
-        <label for="githubUrl" class="muted">URL ZIP GitHub (opsional)</label>
-        <input id="githubUrl" type="text" placeholder="https://github.com/aryaexeuyf/Image/releases/download/v1.0.0/Tutorial_flashesp32.zip" />
-      </div>
-    </div>
-
-    <div class="card" style="margin-bottom:12px;">
-      <strong>Quick Offset Checker</strong>
-      <p class="muted">Masukkan offset hex, contoh: 0x10000</p>
-      <input id="offsetInput" type="text" value="0x10000" />
-      <div style="margin-top:8px;display:flex;gap:8px"><button id="btnCheck" class="btn secondary">Check Offset</button><div id="offsetResult" style="align-self:center;margin-left:6px"></div></div>
-    </div>
-
+    <!-- Bahan -->
     <div class="card">
-      <strong>Catatan penting</strong>
-      <p class="muted">Android minimal 9. Gunakan board <em>devkit</em> WROOM. Jika ragu, cek tulisan di modul. Watermark oleh aptech/aryaputra.</p>
+      <h2><i class="fas fa-list-check"></i> Bahan yang Dibutuhkan</h2>
+      <ul>
+        <li><strong>ESP32 DevKit</strong> (WROOM v1-v4, DOIT, ESP32U) — <em>jangan C3/S3/Mini!</em></li>
+        <li><strong>Kabel data</strong> support transfer (bukan charger-only)</li>
+        <li><strong>2x nRF24L01</strong> (IC asli, pakai kapasitor 10µF)</li>
+        <li><strong>Baterai LiPo 1000mAh</strong> + BMS</li>
+        <li><strong>Modul TP4056</strong> + saklar geser</li>
+      </ul>
+      <div class="note">
+        <i class="fas fa-exclamation-triangle"></i> Pastikan ESP32 tipe <span class="highlight">DevKit</span>! Tipe lain sering gagal flash.
+      </div>
     </div>
-  </aside>
-</div>
 
-<footer class="muted" style="text-align:center;margin-top:18px">Dibuat untuk tujuan edukasi — patuhi aturan setempat saat menggunakan jammer. Penulis: ARYA25 (tested by experienced technician).</footer>
-<div class="watermark">aptech / aryaputra</div>
+    <!-- Wiring -->
+    <div class="card">
+      <h2><i class="fas fa-plug"></i> Wiring Lengkap (Pinout Resmi)</h2>
 
-  </div>  <script>
-    const metaZip = document.querySelector('meta[name="github-zip"]').getAttribute('content') || '';
-    const githubUrlInput = document.getElementById('githubUrl');
-    const btnDownload = document.getElementById('btnDownload');
-    const btnCopyCmd = document.getElementById('btnCopyCmd');
-    const btnCheck = document.getElementById('btnCheck');
-    const offsetResult = document.getElementById('offsetResult');
+      <div class="section-title"><i class="fas fa-microchip"></i> Modul nRF24L01 #1 (HSPI)</div>
+      <table class="wiring-table">
+        <tr><th>nRF24L01</th><th>ESP32</th><th>Catatan</th></tr>
+        <tr><td>VCC</td><td>3.3V</td><td>+ kapasitor 10µF</td></tr>
+        <tr><td>GND</td><td>GND</td><td>- kapasitor 10µF</td></tr>
+        <tr><td>CE</td><td>GPIO 16</td><td></td></tr>
+        <tr><td>CSN</td><td>GPIO 15</td><td></td></tr>
+        <tr><td>SCK</td><td>GPIO 14</td><td></td></tr>
+        <tr><td>MOSI</td><td>GPIO 13</td><td></td></tr>
+        <tr><td>MISO</td><td>GPIO 12</td><td></td></tr>
+      </table>
 
-    if(metaZip && metaZip.trim().length>5){ githubUrlInput.value = metaZip }
+      <div class="section-title"><i class="fas fa-microchip"></i> Modul nRF24L01 #2 (VSPI)</div>
+      <table class="wiring-table">
+        <tr><th>nRF24L01</th><th>ESP32</th><th>Catatan</th></tr>
+        <tr><td>VCC</td><td>3.3V</td><td>+ kapasitor 10µF</td></tr>
+        <tr><td>GND</td><td>GND</td><td>- kapasitor 10µF</td></tr>
+        <tr><td>CE</td><td>GPIO 22</td><td></td></tr>
+        <tr><td>CSN</td><td>GPIO 21</td><td></td></tr>
+        <tr><td>SCK</td><td>GPIO 18</td><td></td></tr>
+        <tr><td>MOSI</td><td>GPIO 23</td><td></td></tr>
+        <tr><td>MISO</td><td>GPIO 19</td><td></td></tr>
+      </table>
 
-    function validateUrl(u){ try{ const x=new URL(u); return true }catch(e){ return false } }
+      <div class="section-title"><i class="fas fa-lightbulb"></i> Status LED</div>
+      <table class="wiring-table">
+        <tr><th>Komponen</th><th>ESP32</th></tr>
+        <tr><td>(+) LED → Resistor 4.7kΩ</td><td>GPIO 27</td></tr>
+        <tr><td>(-) LED</td><td>GND</td></tr>
+      </table>
 
-    // Direct open if valid URL in input, otherwise show error
-    btnDownload.addEventListener('click', ()=>{
-      let url = githubUrlInput.value.trim() || metaZip.trim();
-      if(!url){ alert('Masukkan URL ZIP GitHub pada field di samping atau set meta tag di file.'); return; }
-      if(!validateUrl(url)){ alert('URL tidak valid. Masukkan URL ZIP GitHub lengkap, misal: https://github.com/aryaexeuyf/Image/releases/download/v1.0.0/Tutorial_flashesp32.zip'); return; }
-      // Open in new tab
-      window.open(url, '_blank');
-    });
+      <div class="section-title"><i class="fas fa-tv"></i> OLED I2C (0.96")</div>
+      <table class="wiring-table">
+        <tr><th>OLED</th><th>ESP32</th></tr>
+        <tr><td>VCC</td><td>3.3V</td></tr>
+        <tr><td>GND</td><td>GND</td></tr>
+        <tr><td>SCL</td><td>GPIO 5</td></tr>
+        <tr><td>SDA</td><td>GPIO 4</td></tr>
+      </table>
 
-    btnCopyCmd.addEventListener('click', ()=>{
-      const cmd = 'esptool.py --chip esp32 --port /dev/ttyUSB0 --baud 460800 write_flash -z 0x1000 bootloader_kusus.bin 0x8000 partition_extra.bin 0x10000 emensta_official_jammer_esp32.bin';
-      navigator.clipboard.writeText(cmd).then(()=>{
-        alert('Command copied to clipboard. Paste di PC (esptool).');
-      }).catch(()=>{
-        alert('Gagal copy, silakan salin manual:
-'+cmd);
-      })
-    });
+      <div class="section-title"><i class="fas fa-battery-full"></i> Baterai + Charger</div>
+      <ul>
+        <li>Baterai (+) → JST-PH2 (+) → TP4056 <strong>Bat+</strong></li>
+        <li>Baterai (-) → JST-PH2 (-) → TP4056 <strong>Bat-</strong></li>
+        <li>TP4056 <strong>OUT+</strong> → Saklar → ESP32 VIN</li>
+        <li>TP4056 <strong>OUT-</strong> → ESP32 GND</li>
+      </ul>
+    </div>
 
-    btnCheck.addEventListener('click', ()=>{
-      const raw = document.getElementById('offsetInput').value.trim();
-      if(!raw){ offsetResult.innerHTML = '<span class="warn">Masukkan offset</span>'; return; }
-      let val = raw.toLowerCase();
-      if(!val.startsWith('0x')) val = '0x'+val;
-      const ok = /^0x[0-9a-f]+$/i.test(val);
-      if(!ok){ offsetResult.innerHTML = '<span class="warn">Format hex salah</span>'; return; }
-      const num = parseInt(val,16);
-      if(num < 0x1000){ offsetResult.innerHTML = '<span class="warn">Offset terlalu kecil</span>'; return; }
-      if(num === 0x10000){ offsetResult.innerHTML = '<span class="ok">Offset umum untuk main.bin (0x10000)</span>'; return; }
-      offsetResult.innerHTML = '<span class="muted">Offset terdeteksi: '+val+'</span>';
-    });
+    <!-- Langkah Flashing -->
+    <div class="card">
+      <h2><i class="fas fa-mobile-alt"></i> Langkah Flashing via Android</h2>
+      <ol>
+        <li>Install aplikasi <span class="highlight">ESP32 Flasher</span> dari file ZIP.</li>
+        <li>Buka aplikasi → atur file dengan offset:
+          <ul>
+            <li><span class="highlight">emensta_official_jammer_esp32.bin</span> → <strong>0x10000</strong></li>
+            <li><span class="highlight">bootloader_kusus.bin</span> → <strong>0x1000</strong></li>
+            <li><span class="highlight">partition_extra.bin</span> → <strong>0x8000</strong></li>
+          </ul>
+        </li>
+        <li>Aktifkan <strong>Auto Bootloader</strong> di aplikasi.</li>
+        <li>Sambungkan ESP32 via OTG → tekan <strong>FLASH</strong>.</li>
+      </ol>
+      <div class="tip">
+        <i class="fas fa-lightbulb"></i> Pastikan HP Android ≥ 9 dan support OTG!
+      </div>
+    </div>
 
-    // Accessibility: D to download
-    document.addEventListener('keydown',(e)=>{ if(e.key.toLowerCase()==='d'){ btnDownload.click() } })
+    <!-- Troubleshooting -->
+    <div class="card">
+      <h2><i class="fas fa-tools"></i> Troubleshooting</h2>
+      <ul>
+        <li><strong>OLED tidak nyala?</strong> → Cek pin SDA/SCL (GPIO 4 & 5), pastikan firmware mendukung I2C.</li>
+        <li><strong>Gagal flash?</strong> → Cek kabel data, offset, dan tipe ESP32.</li>
+        <li><strong>nRF24 error?</strong> → Pastikan kapasitor 10µF terpasang dekat VCC/GND.</li>
+      </ul>
+    </div>
 
-    // prevent pinch-zoom accidental on android? We left max-scale=1 in meta
-  </script></body>
+    <!-- Tombol Download -->
+    <a href="https://github.com/aryaexeuyf/Image/releases/download/v1.0.0/Tutorial_flashesp32.zip" 
+       class="download-btn" 
+       download>
+      <i class="fas fa-download"></i> Download ZIP Lengkap (Firmware + Skema + APK)
+    </a>
+
+    <footer>
+      <p>Panduan ini dibuat untuk komunitas BlueJammer Emensta<br>
+      <i class="fas fa-heart" style="color:#ef4444;"></i> Semoga berhasil!</p>
+    </footer>
+  </div>
+</body>
 </html>
